@@ -186,7 +186,8 @@ class TextFieldEmbedder(torch.nn.Module):
                     bert_inp_ids = torch.LongTensor(bert_inp_ids).to(tok_ids.device)
                     mask = torch.ones_like(bert_inp_ids).to(tok_ids.device)
                     tok_type = torch.zeros_like(bert_inp_ids).to(tok_ids.device)
-                    outs.append(embedder(bert_inp_ids, mask, tok_type, **forward_params_values))
+
+                    outs.append(embedder(bert_inp_ids, mask, tok_type, **forward_params_values)[0])
                 else:
                     tensors = [text_field_input[k]]
                     outs.append(embedder(*tensors, **forward_params_values))
