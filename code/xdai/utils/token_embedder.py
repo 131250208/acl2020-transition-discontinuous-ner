@@ -187,8 +187,8 @@ class TextFieldEmbedder(torch.nn.Module):
         if args.model_type == "elmo":
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
 
-        set_trace()
         if args.model_type == "bert":
             bert_path = args.pretrained_model_dir
             embedders["bert"] = BertModel.from_pretrained(bert_path)
+            # vocab.get_item_from_index(0)
         return cls(embedders, embedder_to_indexer_map, vocab)
