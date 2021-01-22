@@ -67,7 +67,7 @@ class MyBert(torch.nn.Module):
         return self.bert(*args, **kwargs)
 
     def get_output_dim(self):
-        return self.config.hidden_size
+        return self.bert.config.hidden_size
 
 
 '''A single layer of ELMo representations, essentially a wrapper around ELMo(num_output_representations=1, ...)
