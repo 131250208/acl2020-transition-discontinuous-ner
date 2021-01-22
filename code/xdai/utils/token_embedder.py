@@ -4,7 +4,7 @@ from typing import Dict
 from xdai.utils.nn import TimeDistributed
 from xdai.utils.seq2vec import CnnEncoder
 from xdai.elmo.models import Elmo
-
+from IPython.core.debugger import set_trace
 
 '''Update date: 2019-Nov-5'''
 class Embedding(torch.nn.Module):
@@ -120,9 +120,9 @@ Takes as input the dict produced by TextField and
 returns as output an embedded representations of the tokens in that field
 Update date: 2019-Nov-5'''
 class TextFieldEmbedder(torch.nn.Module):
-    def __init__(self, token_embedders, embedder_to_indexer_map=None):
+    def __init__(self, token_embedders, embedder_to_indexer_map=None, vocab=None):
         super(TextFieldEmbedder, self).__init__()
-
+        self.vocab = vocab
         self.token_embedders = token_embedders
         self._embedder_to_indexer_map = embedder_to_indexer_map
         for k, embedder in token_embedders.items():
@@ -148,9 +148,11 @@ class TextFieldEmbedder(torch.nn.Module):
                 indexer_map = self._embedder_to_indexer_map[k]
                 assert isinstance(indexer_map, dict)
                 tensors = {name: text_field_input[argument] for name, argument in indexer_map.items()}
+                set_trace()
                 outs.append(embedder(**tensors, **forward_params_values))
             else:
                 tensors = [text_field_input[k]]
+                set_trace()
                 outs.append(embedder(*tensors, **forward_params_values))
         return torch.cat(outs, dim=-1)
 
@@ -183,4 +185,9 @@ class TextFieldEmbedder(torch.nn.Module):
 
         if args.model_type == "elmo":
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
+
+        set_trace()
+        if args.model_type == "bert":
+            embedders["bert"] = None
+            return cls(embedders, embedder_to_indexer_map, vocab)
         return cls(embedders, embedder_to_indexer_map)
