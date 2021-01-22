@@ -57,7 +57,14 @@ class TokenCharactersEmbedder(torch.nn.Module):
         return outs
 
 
-class MyBert(BertModel):
+class MyBert(torch.nn.Module):
+    def __init__(self, tokenizer, bert):
+        self.tokenizer = tokenizer
+        self.bert = bert
+
+    def forward(self, *args, **kwargs):
+        return self.bert(*args, **kwargs)
+
     def get_output_dim(self):
         return self.config.hidden_size
 
@@ -133,10 +140,8 @@ class TextFieldEmbedder(torch.nn.Module):
         self._embedder_to_indexer_map = embedder_to_indexer_map
         for k, embedder in token_embedders.items():
             if k == "bert":
-                self.add_module("token_embedder_%s" % k, embedder["encoder"])
-                self.bert_vocab = embedder["tokenizer"].get_vocab()
-            else:
-                self.add_module("token_embedder_%s" % k, embedder)
+                self.bert_vocab = embedder.tokenizer.get_vocab()
+            self.add_module("token_embedder_%s" % k, embedder)
 
     def get_output_dim(self):
         return sum([embedder.get_output_dim() for embedder in self.token_embedders.values()])
@@ -217,8 +222,7 @@ class TextFieldEmbedder(torch.nn.Module):
 
         if args.model_type == "bert":
             bert_path = args.pretrained_model_dir
-            embedders["bert"] = {"tokenizer": BertTokenizerFast.from_pretrained(bert_path),
-                                 "encoder": MyBert.from_pretrained(bert_path)}
+            embedders["bert"] = MyBert(BertTokenizerFast.from_pretrained(bert_path),
+                                       BertModel.from_pretrained(bert_path))
 
-            # vocab.get_item_from_index(0)
         return cls(embedders, embedder_to_indexer_map, vocab)
