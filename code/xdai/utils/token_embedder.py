@@ -59,6 +59,7 @@ class TokenCharactersEmbedder(torch.nn.Module):
 
 class MyBert(torch.nn.Module):
     def __init__(self, tokenizer, bert):
+        super(MyBert, self).__init__()
         self.tokenizer = tokenizer
         self.bert = bert
 
