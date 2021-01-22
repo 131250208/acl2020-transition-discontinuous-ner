@@ -6,6 +6,7 @@ from xdai.utils.seq2vec import CnnEncoder
 from xdai.elmo.models import Elmo
 from IPython.core.debugger import set_trace
 from transformers import BertModel
+from transformers import BertTokenizerFast
 
 '''Update date: 2019-Nov-5'''
 class Embedding(torch.nn.Module):
@@ -127,8 +128,11 @@ class TextFieldEmbedder(torch.nn.Module):
         self.token_embedders = token_embedders
         self._embedder_to_indexer_map = embedder_to_indexer_map
         for k, embedder in token_embedders.items():
-            self.add_module("token_embedder_%s" % k, embedder)
-
+            if k == "bert":
+                self.add_module("token_embedder_%s" % k, embedder["encoder"])
+                self.bert_vocab = embedder["tokenizer"].get_vocab()
+            else:
+                self.add_module("token_embedder_%s" % k, embedder)
 
     def get_output_dim(self):
         return sum([embedder.get_output_dim() for embedder in self.token_embedders.values()])
@@ -149,12 +153,31 @@ class TextFieldEmbedder(torch.nn.Module):
                 indexer_map = self._embedder_to_indexer_map[k]
                 assert isinstance(indexer_map, dict)
                 tensors = {name: text_field_input[argument] for name, argument in indexer_map.items()}
-                set_trace()
                 outs.append(embedder(**tensors, **forward_params_values))
             else:
-                tensors = [text_field_input[k]]
-                set_trace()
-                outs.append(embedder(*tensors, **forward_params_values))
+                if k == "bert":
+                    # (batch_size, seq_len)
+                    tok_ids = text_field_input["tokens"]
+                    bert_inp_ids = []
+                    for l in tok_ids:
+                        toks = [self.vocab.get_item_from_index(t.item()) for t in l]
+                        bert_toks = []
+                        for t in toks:
+                            if t == "@@PADDING@@":
+                                bert_toks.append("[PAD]")
+                            elif t == "@@UNKNOWN@@":
+                                bert_toks.append("[UNK]")
+                            else:
+                                bert_toks.append(t)
+                        bert_inp_ids.append([self.bert_vocab[t] for t in bert_toks])
+                    bert_inp_ids = torch.LongTensor(bert_inp_ids)
+                    mask = torch.ones_like(bert_inp_ids)
+                    tok_type = torch.zeros_like(bert_inp_ids)
+                    set_trace()
+                    outs.append(embedder(bert_inp_ids, mask, tok_type, **forward_params_values))
+                else:
+                    tensors = [text_field_input[k]]
+                    outs.append(embedder(*tensors, **forward_params_values))
         return torch.cat(outs, dim=-1)
 
 
@@ -189,6 +212,8 @@ class TextFieldEmbedder(torch.nn.Module):
 
         if args.model_type == "bert":
             bert_path = args.pretrained_model_dir
-            embedders["bert"] = BertModel.from_pretrained(bert_path)
+            embedders["bert"] = {"tokenizer": BertTokenizerFast.from_pretrained(bert_path),
+                                 "encoder": BertModel.from_pretrained(bert_path)}
+
             # vocab.get_item_from_index(0)
         return cls(embedders, embedder_to_indexer_map, vocab)
