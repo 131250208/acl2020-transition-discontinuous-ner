@@ -5,6 +5,7 @@ from xdai.utils.nn import TimeDistributed
 from xdai.utils.seq2vec import CnnEncoder
 from xdai.elmo.models import Elmo
 from IPython.core.debugger import set_trace
+from transformers import BertModel
 
 '''Update date: 2019-Nov-5'''
 class Embedding(torch.nn.Module):
@@ -188,6 +189,6 @@ class TextFieldEmbedder(torch.nn.Module):
 
         set_trace()
         if args.model_type == "bert":
-            embedders["bert"] = None
-            return cls(embedders, embedder_to_indexer_map, vocab)
-        return cls(embedders, embedder_to_indexer_map)
+            bert_path = args.pretrained_model_dir
+            embedders["bert"] = BertModel.from_pretrained(bert_path)
+        return cls(embedders, embedder_to_indexer_map, vocab)
