@@ -178,7 +178,10 @@ class TextFieldEmbedder(torch.nn.Module):
                             elif t == "@@UNKNOWN@@":
                                 bert_toks.append("[UNK]")
                             else:
-                                bert_toks.append(t)
+                                if t in self.bert_vocab:
+                                    bert_toks.append(t)
+                                else:
+                                    bert_toks.append("[UNK]")
                         bert_inp_ids.append([self.bert_vocab[t] for t in bert_toks])
                     bert_inp_ids = torch.LongTensor(bert_inp_ids)
                     mask = torch.ones_like(bert_inp_ids)
