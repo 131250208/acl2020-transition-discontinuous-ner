@@ -155,6 +155,7 @@ class TextFieldEmbedder(torch.nn.Module):
                 tensors = {name: text_field_input[argument] for name, argument in indexer_map.items()}
                 outs.append(embedder(**tensors, **forward_params_values))
             else:
+                set_trace()
                 if k == "bert":
                     # (batch_size, seq_len)
                     tok_ids = text_field_input["tokens"]
