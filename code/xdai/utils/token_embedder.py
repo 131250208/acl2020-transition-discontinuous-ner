@@ -183,10 +183,9 @@ class TextFieldEmbedder(torch.nn.Module):
                                 else:
                                     bert_toks.append("[UNK]")
                         bert_inp_ids.append([self.bert_vocab[t] for t in bert_toks])
-                    bert_inp_ids = torch.LongTensor(bert_inp_ids)
-                    mask = torch.ones_like(bert_inp_ids)
-                    tok_type = torch.zeros_like(bert_inp_ids)
-                    set_trace()
+                    bert_inp_ids = torch.LongTensor(bert_inp_ids).to(tok_ids.device)
+                    mask = torch.ones_like(bert_inp_ids).to(tok_ids.device)
+                    tok_type = torch.zeros_like(bert_inp_ids).to(tok_ids.device)
                     outs.append(embedder(bert_inp_ids, mask, tok_type, **forward_params_values))
                 else:
                     tensors = [text_field_input[k]]
