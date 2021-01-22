@@ -57,6 +57,11 @@ class TokenCharactersEmbedder(torch.nn.Module):
         return outs
 
 
+class MyBert(BertModel):
+    def get_output_dim(self):
+        return self.config.hidden_size
+
+
 '''A single layer of ELMo representations, essentially a wrapper around ELMo(num_output_representations=1, ...)
 Update date: 2019-Nov-5'''
 class ElmoTokenEmbedder(torch.nn.Module):
@@ -76,7 +81,6 @@ class ElmoTokenEmbedder(torch.nn.Module):
 
     def get_output_dim(self):
         return self.output_dim
-
 
     def forward(self, inputs):
         # inputs: batch_size, num_tokens, 50
@@ -214,7 +218,7 @@ class TextFieldEmbedder(torch.nn.Module):
         if args.model_type == "bert":
             bert_path = args.pretrained_model_dir
             embedders["bert"] = {"tokenizer": BertTokenizerFast.from_pretrained(bert_path),
-                                 "encoder": BertModel.from_pretrained(bert_path)}
+                                 "encoder": MyBert.from_pretrained(bert_path)}
 
             # vocab.get_item_from_index(0)
         return cls(embedders, embedder_to_indexer_map, vocab)
