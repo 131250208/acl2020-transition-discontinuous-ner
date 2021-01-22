@@ -211,7 +211,6 @@ class TextFieldEmbedder(torch.nn.Module):
         if args.model_type == "elmo":
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
 
-        set_trace()
         if args.model_type == "bert":
             bert_path = args.pretrained_model_dir
             embedders["bert"] = {"tokenizer": BertTokenizerFast.from_pretrained(bert_path),
