@@ -195,7 +195,7 @@ class TextFieldEmbedder(torch.nn.Module):
             new_token_characters = []
             for l_idx, bert_ids in enumerate(batch_bert_inp_ids):
                 pad_len = max_seq_length - len(bert_ids)
-                batch_bert_inp_ids[l_idx] = bert_ids.extend([0] * pad_len)
+                batch_bert_inp_ids[l_idx].extend([0] * pad_len)
                 subwd2wd = batch_subwd2wd[l_idx]
                 subwd2wd = torch.LongTensor(subwd2wd).to(device)
                 words = torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd)
