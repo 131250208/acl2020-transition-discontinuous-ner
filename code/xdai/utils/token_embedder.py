@@ -187,6 +187,7 @@ class TextFieldEmbedder(torch.nn.Module):
                         subwd2wd.extend([idx] * len(tks))
                 bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
                 batch_bert_inp_ids.append(bert_ids)
+                batch_subwd2wd.append(subwd2wd)
                 assert len(bert_ids) == len(subwd2wd)
                 max_seq_length = max(len(bert_ids), max_seq_length)
 
