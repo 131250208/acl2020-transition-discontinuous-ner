@@ -187,7 +187,7 @@ class TextFieldEmbedder(torch.nn.Module):
                 bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
                 batch_bert_inp_ids.append(bert_ids)
                 assert len(bert_ids) == len(subwd2wd)
-                subwd2wd = torch.LongTensor(subwd2wd)
+                subwd2wd = torch.LongTensor(subwd2wd).to(device)
                 new_word_ids.append(torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd))
                 new_token_characters.append(
                     torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd))
