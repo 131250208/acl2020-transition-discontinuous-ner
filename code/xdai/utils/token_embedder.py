@@ -165,7 +165,7 @@ class TextFieldEmbedder(torch.nn.Module):
             # (batch_size, seq_len)
             tok_ids = text_field_input["tokens"]
             device = tok_ids.device
-            bert_inp_ids = []
+            batch_bert_inp_ids = []
 
             new_word_ids = []
             new_token_characters = []
@@ -184,19 +184,20 @@ class TextFieldEmbedder(torch.nn.Module):
                         tks = self.bert_tokenizer.tokenize(w)
                         bert_toks.extend(tks)
                         subwd2wd.extend([idx] * len(tks))
-                bert_inp_ids.append([self.bert_tokenizer.get_vocab()[t] for t in bert_toks])
-                assert len(bert_inp_ids) == len(subwd2wd)
+                bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
+                batch_bert_inp_ids.append(bert_ids)
+                assert len(bert_ids) == len(subwd2wd)
                 subwd2wd = torch.LongTensor(subwd2wd)
                 new_word_ids.append(torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd))
                 new_token_characters.append(
                     torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd))
             text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
             text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
-            bert_inp_ids = torch.LongTensor(bert_inp_ids).to(device)
-            mask = torch.ones_like(bert_inp_ids).to(device)
-            tok_type = torch.zeros_like(bert_inp_ids).to(device)
+            batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
+            mask = torch.ones_like(batch_bert_inp_ids).to(device)
+            tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
             set_trace()
-            outs.append(embedder(bert_inp_ids, mask, tok_type, **forward_params_values)[0])
+            outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
 
         for k in sorted(self.token_embedders.keys()):
             if k == "bert":
