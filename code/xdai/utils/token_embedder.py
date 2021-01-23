@@ -7,6 +7,7 @@ from xdai.elmo.models import Elmo
 from IPython.core.debugger import set_trace
 from transformers import BertModel
 from transformers import BertTokenizerFast
+import torch.nn.functional as F
 
 '''Update date: 2019-Nov-5'''
 class Embedding(torch.nn.Module):
@@ -167,8 +168,8 @@ class TextFieldEmbedder(torch.nn.Module):
             device = tok_ids.device
             batch_bert_inp_ids = []
 
-            new_word_ids = []
-            new_token_characters = []
+            max_seq_length = 0
+            batch_subwd2wd = []
             for l_idx, l in enumerate(tok_ids):
                 words = [self.vocab.get_item_from_index(t.item()) for t in l]
                 bert_toks = []
@@ -187,10 +188,21 @@ class TextFieldEmbedder(torch.nn.Module):
                 bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
                 batch_bert_inp_ids.append(bert_ids)
                 assert len(bert_ids) == len(subwd2wd)
+                max_seq_length = max(len(bert_ids), max_seq_length)
+
+            new_word_ids = []
+            new_token_characters = []
+            for l_idx, bert_ids in enumerate(batch_bert_inp_ids):
+                pad_len = max_seq_length - len(bert_ids)
+                batch_bert_inp_ids[l_idx] = bert_ids.extend([0] * pad_len)
+                subwd2wd = batch_subwd2wd[l_idx]
                 subwd2wd = torch.LongTensor(subwd2wd).to(device)
-                new_word_ids.append(torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd))
-                new_token_characters.append(
-                    torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd))
+                words = torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd)
+                chars = torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd)
+                words = F.pad(words, (0, pad_len), "constant", 0)
+                chars = F.pad(chars, (0, 0, 0, pad_len), "constant", 0)
+                new_word_ids.append(words)
+                new_token_characters.append(chars)
             set_trace()
             text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
             text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
