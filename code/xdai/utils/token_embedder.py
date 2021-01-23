@@ -191,12 +191,13 @@ class TextFieldEmbedder(torch.nn.Module):
                 new_word_ids.append(torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd))
                 new_token_characters.append(
                     torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd))
+            set_trace()
             text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
             text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
             batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
             mask = torch.ones_like(batch_bert_inp_ids).to(device)
             tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
-            set_trace()
+
             outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
 
         for k in sorted(self.token_embedders.keys()):
