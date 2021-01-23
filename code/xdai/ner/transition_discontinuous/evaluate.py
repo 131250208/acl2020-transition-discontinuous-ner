@@ -7,7 +7,7 @@ import argparse, os, sys
 from typing import Dict, List
 from collections import defaultdict
 
-sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../../.."))
 from xdai.ner.mention import Mention
 
 
