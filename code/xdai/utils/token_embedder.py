@@ -204,7 +204,7 @@ class TextFieldEmbedder(torch.nn.Module):
                 chars = F.pad(chars, (0, 0, 0, pad_len), "constant", 0)
                 new_word_ids.append(words)
                 new_token_characters.append(chars)
-            set_trace()
+            # set_trace()
             text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
             text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
             batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
