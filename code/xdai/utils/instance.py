@@ -202,9 +202,8 @@ class TextField(_Field):
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
             indexer_tensors = {key: torch.LongTensor(array) for key, array in padded_array.items()}
             tensors.update(indexer_tensors)
-        set_trace()
-        return tensors
 
+        return tensors
 
     def empty_field(self):
         text_field = TextField([], self._token_indexers, self.bert_tokenizer)
