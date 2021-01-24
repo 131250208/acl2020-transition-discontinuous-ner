@@ -155,6 +155,64 @@ class TextFieldEmbedder(torch.nn.Module):
     def forward(self, text_field_input: Dict[str, torch.Tensor], **kwargs):
         outs = []
 
+        # if "bert" in self.token_embedders:
+        #     embedder = getattr(self, "token_embedder_%s" % "bert")
+        #     forward_params = inspect.signature(embedder.forward).parameters
+        #     forward_params_values = {}
+        #     for param in forward_params.keys():
+        #         if param in kwargs:
+        #             forward_params_values[param] = kwargs[param]
+        #
+        #     # (batch_size, seq_len)
+        #     tok_ids = text_field_input["tokens"]
+        #     device = tok_ids.device
+        #     batch_bert_inp_ids = []
+        #
+        #     max_seq_length = 0
+        #     batch_subwd2wd = []
+        #     for l_idx, l in enumerate(tok_ids):
+        #         words = [self.vocab.get_item_from_index(t.item()) for t in l]
+        #         bert_toks = []
+        #         subwd2wd = []
+        #         for idx, w in enumerate(words):
+        #             if w == "@@PADDING@@":
+        #                 bert_toks.append("[PAD]")
+        #                 subwd2wd.append(idx)
+        #             elif w == "@@UNKNOWN@@":
+        #                 bert_toks.append("[UNK]")
+        #                 subwd2wd.append(idx)
+        #             else:
+        #                 tks = self.bert_tokenizer.tokenize(w)
+        #                 bert_toks.extend(tks)
+        #                 subwd2wd.extend([idx] * len(tks))
+        #         bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
+        #         batch_bert_inp_ids.append(bert_ids)
+        #         batch_subwd2wd.append(subwd2wd)
+        #         assert len(bert_ids) == len(subwd2wd)
+        #         max_seq_length = max(len(bert_ids), max_seq_length)
+        #
+        #     new_word_ids = []
+        #     new_token_characters = []
+        #     for l_idx, bert_ids in enumerate(batch_bert_inp_ids):
+        #         pad_len = max_seq_length - len(bert_ids)
+        #         batch_bert_inp_ids[l_idx].extend([0] * pad_len)
+        #         subwd2wd = batch_subwd2wd[l_idx]
+        #         subwd2wd = torch.LongTensor(subwd2wd).to(device)
+        #         words = torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd)
+        #         chars = torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd)
+        #         words = F.pad(words, (0, pad_len), "constant", 0)
+        #         chars = F.pad(chars, (0, 0, 0, pad_len), "constant", 0)
+        #         new_word_ids.append(words)
+        #         new_token_characters.append(chars)
+        #     # set_trace()
+        #     text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
+        #     text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
+        #     batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
+        #     mask = torch.ones_like(batch_bert_inp_ids).to(device)
+        #     tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
+        #
+        #     outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
+
         if "bert" in self.token_embedders:
             embedder = getattr(self, "token_embedder_%s" % "bert")
             forward_params = inspect.signature(embedder.forward).parameters
@@ -168,45 +226,21 @@ class TextFieldEmbedder(torch.nn.Module):
             device = tok_ids.device
             batch_bert_inp_ids = []
 
-            max_seq_length = 0
-            batch_subwd2wd = []
             for l_idx, l in enumerate(tok_ids):
                 words = [self.vocab.get_item_from_index(t.item()) for t in l]
                 bert_toks = []
-                subwd2wd = []
                 for idx, w in enumerate(words):
                     if w == "@@PADDING@@":
                         bert_toks.append("[PAD]")
-                        subwd2wd.append(idx)
+
                     elif w == "@@UNKNOWN@@":
                         bert_toks.append("[UNK]")
-                        subwd2wd.append(idx)
+
                     else:
-                        tks = self.bert_tokenizer.tokenize(w)
-                        bert_toks.extend(tks)
-                        subwd2wd.extend([idx] * len(tks))
+                        bert_toks.append(w)
                 bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
                 batch_bert_inp_ids.append(bert_ids)
-                batch_subwd2wd.append(subwd2wd)
-                assert len(bert_ids) == len(subwd2wd)
-                max_seq_length = max(len(bert_ids), max_seq_length)
 
-            new_word_ids = []
-            new_token_characters = []
-            for l_idx, bert_ids in enumerate(batch_bert_inp_ids):
-                pad_len = max_seq_length - len(bert_ids)
-                batch_bert_inp_ids[l_idx].extend([0] * pad_len)
-                subwd2wd = batch_subwd2wd[l_idx]
-                subwd2wd = torch.LongTensor(subwd2wd).to(device)
-                words = torch.index_select(text_field_input["tokens"][l_idx], 0, subwd2wd)
-                chars = torch.index_select(text_field_input["token_characters"][l_idx], 0, subwd2wd)
-                words = F.pad(words, (0, pad_len), "constant", 0)
-                chars = F.pad(chars, (0, 0, 0, pad_len), "constant", 0)
-                new_word_ids.append(words)
-                new_token_characters.append(chars)
-            # set_trace()
-            text_field_input["tokens"] = torch.stack(new_word_ids, dim=0).to(device)
-            text_field_input["token_characters"] = torch.stack(new_token_characters, dim=0).to(device)
             batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
             mask = torch.ones_like(batch_bert_inp_ids).to(device)
             tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
