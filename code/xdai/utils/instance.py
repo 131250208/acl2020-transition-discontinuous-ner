@@ -133,6 +133,7 @@ class TextField(_Field):
             indexer_name_to_indexed_token[indexer_name] = list(token_indices.keys())
             for token_index in token_indices:
                 token_index_to_indexer_name[token_index] = indexer_name
+            set_trace()
         self._indexed_tokens = token_arrays
         self._indexer_name_to_indexed_token = indexer_name_to_indexed_token
         self._token_index_to_indexer_name = token_index_to_indexer_name
@@ -180,7 +181,6 @@ class TextField(_Field):
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
             indexer_tensors = {key: torch.LongTensor(array) for key, array in padded_array.items()}
             tensors.update(indexer_tensors)
-            set_trace()
         return tensors
 
 
