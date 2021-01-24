@@ -180,7 +180,7 @@ class TextField(_Field):
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
             indexer_tensors = {key: torch.LongTensor(array) for key, array in padded_array.items()}
             tensors.update(indexer_tensors)
-        set_trace()
+        # add bert ids
         return tensors
 
 
@@ -266,4 +266,5 @@ class Instance:
         tensors = {}
         for field_name, field in self.fields.items():
             tensors[field_name] = field.as_tensor(padding_lengths[field_name])
+        set_trace()
         return tensors
