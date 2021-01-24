@@ -64,7 +64,6 @@ class DatasetReader:
             self._token_indexers["elmo_characters"] = ELMoIndexer()
         if args.model_type == "bert":
             self._token_indexers["bert"] = BertTokenizerFast.from_pretrained(args.pretrained_model_dir)
-        set_trace()
 
     def read(self, filepath, training=False):
         instances = []
