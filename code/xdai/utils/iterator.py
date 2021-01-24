@@ -1,7 +1,7 @@
 import itertools, math, random
 from collections import defaultdict
 from typing import cast, Dict, Iterable, List, Tuple
-
+from IPython.core.debugger import set_trace
 
 '''Reference url: https://github.com/allenai/allennlp/blob/master/allennlp/common/util.py#ensure_list
 Update date: 2019-Nov-18'''
@@ -55,6 +55,8 @@ class Batch(Iterable):
         final_fields = {}
         for field_name, field_tensor_list in field_tensors.items():
             final_fields[field_name] = field_classes[field_name].batch_tensors(field_tensor_list)
+
+        set_trace()
         return final_fields
 
 
