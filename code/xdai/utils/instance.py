@@ -195,10 +195,10 @@ class TextField(_Field):
                 bert_dict = self.bert_tokenizer.get_vocab()
                 try:
                     bert_ids = [bert_dict[t] for t in bert_toks]
+                    indices_to_pad = {**indices_to_pad, "bert": bert_ids}
+                    desired_num_tokens = {**desired_num_tokens, "bert": desired_num_tokens["tokens"]}
                 except Exception as e:
                     print("1")
-                indices_to_pad = {**indices_to_pad, "bert": bert_ids}
-                desired_num_tokens = {**desired_num_tokens, "bert": desired_num_tokens["tokens"]}
 
             # padding
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
