@@ -6,7 +6,7 @@ from xdai.utils.seq2vec import CnnEncoder
 from xdai.elmo.models import Elmo
 from IPython.core.debugger import set_trace
 from transformers import BertModel
-from transformers import BertTokenizerFast
+
 import torch.nn.functional as F
 
 '''Update date: 2019-Nov-5'''
@@ -59,9 +59,8 @@ class TokenCharactersEmbedder(torch.nn.Module):
 
 
 class MyBert(torch.nn.Module):
-    def __init__(self, tokenizer, bert):
+    def __init__(self, bert):
         super(MyBert, self).__init__()
-        self.tokenizer = tokenizer
         self.bert = bert
 
     def forward(self, *args, **kwargs):
@@ -141,9 +140,6 @@ class TextFieldEmbedder(torch.nn.Module):
         self.token_embedders = token_embedders
         self._embedder_to_indexer_map = embedder_to_indexer_map
         for k, embedder in token_embedders.items():
-            if k == "bert":
-                # self.bert_vocab = embedder.tokenizer.get_vocab()
-                self.bert_tokenizer = embedder.tokenizer
             self.add_module("token_embedder_%s" % k, embedder)
 
     def get_output_dim(self):
@@ -297,8 +293,6 @@ class TextFieldEmbedder(torch.nn.Module):
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
 
         if args.model_type == "bert":
-            bert_path = args.pretrained_model_dir
-            embedders["bert"] = MyBert(BertTokenizerFast.from_pretrained(bert_path),
-                                       BertModel.from_pretrained(bert_path))
+            embedders["bert"] = MyBert(BertModel.from_pretrained(args.pretrained_model_dir))
 
         return cls(embedders, embedder_to_indexer_map, vocab)

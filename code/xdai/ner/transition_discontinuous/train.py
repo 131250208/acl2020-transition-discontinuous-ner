@@ -12,7 +12,7 @@ from xdai.utils.vocab import Vocabulary
 from xdai.ner.transition_discontinuous.models import TransitionModel
 from xdai.ner.mention import Mention
 from xdai.ner.transition_discontinuous.parsing import Parser
-
+from transformers import BertTokenizerFast
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,8 @@ class DatasetReader:
         self._token_indexers = {"tokens": SingleIdTokenIndexer(), "token_characters": TokenCharactersIndexer()}
         if args.model_type == "elmo":
             self._token_indexers["elmo_characters"] = ELMoIndexer()
-
+        if args.model_type == "bert":
+            self._token_indexers["bert"] = BertTokenizerFast.from_pretrained(args.pretrained_model_dir)
 
     def read(self, filepath, training=False):
         instances = []

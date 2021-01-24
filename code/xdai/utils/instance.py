@@ -100,10 +100,12 @@ class TextField(_Field):
     def __init__(self, tokens: List[Token], token_indexers):
         self.tokens = tokens
         self._token_indexers = token_indexers
+        if "bert" in token_indexers:
+            self.bert_tokenizer = token_indexers["bert"]
+            del token_indexers["bert"]
         self._indexed_tokens = None
         self._indexer_name_to_indexed_token = None
         self._token_index_to_indexer_name = None
-
 
     def __iter__(self):
         return iter(self.tokens)
@@ -178,13 +180,28 @@ class TextField(_Field):
                                   indexed_tokens_key in self._indexer_name_to_indexed_token[indexer_name]}
             indices_to_pad = {indexed_tokens_key: self._indexed_tokens[indexed_tokens_key] for indexed_tokens_key in
                               self._indexer_name_to_indexed_token[indexer_name]}
-            set_trace()
+
+            if indexer_name == "tokens":
+                # tensors for bert
+                bert_toks = []
+                for idx, w in enumerate(self.tokens):
+                    if w == "@@PADDING@@":
+                        bert_toks.append("[PAD]")
+
+                    elif w == "@@UNKNOWN@@":
+                        bert_toks.append("[UNK]")
+                    else:
+                        bert_toks.append(w)
+                bert_dict = self.bert_tokenizer.get_vocab()
+                bert_ids = [bert_dict[t] for t in bert_toks]
+                indices_to_pad = {**indices_to_pad, "bert": bert_ids}
+                desired_num_tokens = {**desired_num_tokens, "bert": desired_num_tokens["tokens"]}
+
             # padding
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
             indexer_tensors = {key: torch.LongTensor(array) for key, array in padded_array.items()}
             tensors.update(indexer_tensors)
-        # add bert ids
-
+        set_trace()
         return tensors
 
 
