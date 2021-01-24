@@ -163,6 +163,8 @@ class TextField(_Field):
         padding_keys = {key for d in lengths for key in d.keys()}
         for padding_key in padding_keys:
             padding_lengths[padding_key] = max(x[padding_key] if padding_key in x else 0 for x in lengths)
+
+        set_trace()
         return padding_lengths
 
 
@@ -266,5 +268,4 @@ class Instance:
         tensors = {}
         for field_name, field in self.fields.items():
             tensors[field_name] = field.as_tensor(padding_lengths[field_name])
-        set_trace()
         return tensors
