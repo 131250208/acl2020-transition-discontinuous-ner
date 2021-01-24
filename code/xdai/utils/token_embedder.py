@@ -245,7 +245,7 @@ class TextFieldEmbedder(torch.nn.Module):
                 tensors = [text_field_input[k]]
                 outs.append(embedder(*tensors, **forward_params_values))
 
-        set_trace()
+        # set_trace()
         return torch.cat(outs, dim=-1)
 
 
