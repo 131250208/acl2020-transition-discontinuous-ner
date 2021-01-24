@@ -5,7 +5,7 @@ from xdai.utils.instance import TextField
 from xdai.utils.seq2seq import LstmEncoder
 from xdai.utils.token_embedder import Embedding, TextFieldEmbedder
 from xdai.ner.transition_discontinuous.parsing import Parser
-
+from IPython.core.debugger import set_trace
 
 class _Buffer:
     def __init__(self, sentence, empty_state):
@@ -257,7 +257,7 @@ class TransitionModel(torch.nn.Module):
 
     def _apply_action(self, stack, buffer, action_name):
         if action_name == "SHIFT":
-            stack.shift(buffer.pop().cuda())
+            stack.shift(buffer.pop())
         elif action_name.startswith("OUT"):
             buffer.pop()
         elif action_name.startswith("COMPLETE"):
