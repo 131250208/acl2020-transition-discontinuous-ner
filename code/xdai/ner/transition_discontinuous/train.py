@@ -62,6 +62,8 @@ class DatasetReader:
         self._token_indexers = {"tokens": SingleIdTokenIndexer(), "token_characters": TokenCharactersIndexer()}
         if args.model_type == "elmo":
             self._token_indexers["elmo_characters"] = ELMoIndexer()
+
+        self.bert_tokenizer = None
         if args.model_type == "bert":
             self.bert_tokenizer = BertTokenizerFast.from_pretrained(args.pretrained_model_dir)
 
