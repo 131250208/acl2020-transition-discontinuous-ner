@@ -217,11 +217,7 @@ class TextFieldEmbedder(torch.nn.Module):
         #         if param in kwargs:
         #             forward_params_values[param] = kwargs[param]
 
-
-
         for k in sorted(self.token_embedders.keys()):
-            if k == "bert":
-                continue
             embedder = getattr(self, "token_embedder_%s" % k)
             forward_params = inspect.signature(embedder.forward).parameters
             forward_params_values = {}
@@ -249,7 +245,7 @@ class TextFieldEmbedder(torch.nn.Module):
                 tensors = [text_field_input[k]]
                 outs.append(embedder(*tensors, **forward_params_values))
 
-            set_trace()
+        set_trace()
         return torch.cat(outs, dim=-1)
 
 
