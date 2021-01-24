@@ -62,7 +62,7 @@ class MyBert(torch.nn.Module):
     def __init__(self, bert, finetune):
         super(MyBert, self).__init__()
         self.bert = bert
-        if not finetune:  # if train without finetuning bert
+        if int(finetune) == 0:  # if train without finetuning bert
             for param in self.bert.parameters():
                 param.requires_grad = False
 
