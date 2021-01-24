@@ -46,6 +46,7 @@ class Batch(Iterable):
                     lengths_to_use[field_name][padding_key] = instance_field_lengths[padding_key]
 
 
+        set_trace()
         field_tensors: Dict[str, list] = defaultdict(list)
         for instance in self.instances:
             for field, tensors in instance.as_tensor_dict(lengths_to_use).items():
