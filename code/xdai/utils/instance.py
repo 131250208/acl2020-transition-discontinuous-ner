@@ -199,6 +199,7 @@ class TextField(_Field):
                     desired_num_tokens = {**desired_num_tokens, "bert": desired_num_tokens["tokens"]}
                 except Exception as e:
                     print("1")
+                    set_trace()
 
             # padding
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
