@@ -100,10 +100,8 @@ class TextField(_Field):
     def __init__(self, tokens: List[Token], token_indexers):
         self.tokens = tokens
         self._token_indexers = token_indexers
-        set_trace()
         if "bert" in token_indexers:
             self.bert_tokenizer = token_indexers["bert"]
-            del token_indexers["bert"]
         self._indexed_tokens = None
         self._indexer_name_to_indexed_token = None
         self._token_index_to_indexer_name = None
@@ -177,6 +175,8 @@ class TextField(_Field):
     def as_tensor(self, padding_lengths):
         tensors = {}
         for indexer_name, indexer in self._token_indexers.items():
+            if indexer_name == "bert":
+                continue
             desired_num_tokens = {indexed_tokens_key: padding_lengths[f"{indexed_tokens_key}_length"] for
                                   indexed_tokens_key in self._indexer_name_to_indexed_token[indexer_name]}
             indices_to_pad = {indexed_tokens_key: self._indexed_tokens[indexed_tokens_key] for indexed_tokens_key in
