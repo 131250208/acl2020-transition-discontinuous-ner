@@ -209,39 +209,15 @@ class TextFieldEmbedder(torch.nn.Module):
         #
         #     outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
 
-        if "bert" in self.token_embedders:
-            embedder = getattr(self, "token_embedder_%s" % "bert")
-            forward_params = inspect.signature(embedder.forward).parameters
-            forward_params_values = {}
-            for param in forward_params.keys():
-                if param in kwargs:
-                    forward_params_values[param] = kwargs[param]
+        # if "bert" in self.token_embedders:
+        #     embedder = getattr(self, "token_embedder_%s" % "bert")
+        #     forward_params = inspect.signature(embedder.forward).parameters
+        #     forward_params_values = {}
+        #     for param in forward_params.keys():
+        #         if param in kwargs:
+        #             forward_params_values[param] = kwargs[param]
 
-            # (batch_size, seq_len)
-            tok_ids = text_field_input["tokens"]
-            device = tok_ids.device
-            batch_bert_inp_ids = []
 
-            for l_idx, l in enumerate(tok_ids):
-                words = [self.vocab.get_item_from_index(t.item()) for t in l]
-                bert_toks = []
-                for idx, w in enumerate(words):
-                    if w == "@@PADDING@@":
-                        bert_toks.append("[PAD]")
-
-                    elif w == "@@UNKNOWN@@":
-                        bert_toks.append("[UNK]")
-
-                    else:
-                        bert_toks.append(w)
-                bert_ids = [self.bert_tokenizer.get_vocab()[t] for t in bert_toks]
-                batch_bert_inp_ids.append(bert_ids)
-
-            batch_bert_inp_ids = torch.LongTensor(batch_bert_inp_ids).to(device)
-            mask = torch.ones_like(batch_bert_inp_ids).to(device)
-            tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
-
-            outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
 
         for k in sorted(self.token_embedders.keys()):
             if k == "bert":
@@ -252,6 +228,18 @@ class TextFieldEmbedder(torch.nn.Module):
             for param in forward_params.keys():
                 if param in kwargs:
                     forward_params_values[param] = kwargs[param]
+
+            if k == "bert":
+                # (batch_size, seq_len)
+                batch_bert_inp_ids = text_field_input["bert"]
+                device = batch_bert_inp_ids.device
+
+                mask = torch.ones_like(batch_bert_inp_ids).to(device)
+                tok_type = torch.zeros_like(batch_bert_inp_ids).to(device)
+
+                outs.append(embedder(batch_bert_inp_ids, mask, tok_type, **forward_params_values)[0])
+                continue
+
             if self._embedder_to_indexer_map is not None and k in self._embedder_to_indexer_map:
                 indexer_map = self._embedder_to_indexer_map[k]
                 assert isinstance(indexer_map, dict)
@@ -260,6 +248,8 @@ class TextFieldEmbedder(torch.nn.Module):
             else:
                 tensors = [text_field_input[k]]
                 outs.append(embedder(*tensors, **forward_params_values))
+
+            set_trace()
         return torch.cat(outs, dim=-1)
 
 
