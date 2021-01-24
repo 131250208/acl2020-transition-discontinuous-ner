@@ -63,7 +63,7 @@ class DatasetReader:
         if args.model_type == "elmo":
             self._token_indexers["elmo_characters"] = ELMoIndexer()
         if args.model_type == "bert":
-            self._token_indexers["bert"] = BertTokenizerFast.from_pretrained(args.pretrained_model_dir)
+            self.bert_tokenizer = BertTokenizerFast.from_pretrained(args.pretrained_model_dir)
 
     def read(self, filepath, training=False):
         instances = []
@@ -89,7 +89,7 @@ class DatasetReader:
 
 
     def _to_instance(self, sentence, annotations, tokens, actions):
-        text_fields = TextField(tokens, self._token_indexers)
+        text_fields = TextField(tokens, self._token_indexers, self.bert_tokenizer)
         action_fields = ActionField(actions, text_fields)
         sentence = MetadataField(sentence.strip())
         annotations = MetadataField(annotations.strip())

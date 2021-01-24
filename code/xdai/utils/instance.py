@@ -97,11 +97,10 @@ def _batch_tensor_dicts(tensor_dicts):
 '''Reference url: https://github.com/allenai/allennlp/blob/master/allennlp/data/fields/text_field.py
 Update date: 2019-Nov-5'''
 class TextField(_Field):
-    def __init__(self, tokens: List[Token], token_indexers):
+    def __init__(self, tokens: List[Token], token_indexers, bert_tokenizer=None):
         self.tokens = tokens
         self._token_indexers = token_indexers
-        if "bert" in token_indexers:
-            self.bert_tokenizer = token_indexers["bert"]
+        self.bert_tokenizer = bert_tokenizer
         self._indexed_tokens = None
         self._indexer_name_to_indexed_token = None
         self._token_index_to_indexer_name = None
@@ -207,7 +206,7 @@ class TextField(_Field):
 
 
     def empty_field(self):
-        text_field = TextField([], self._token_indexers)
+        text_field = TextField([], self._token_indexers, self.bert_tokenizer)
         text_field._indexed_tokens = {}
         text_field._indexer_name_to_indexed_token = {}
         for indexer_name, indexer in self._token_indexers.items():
