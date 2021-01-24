@@ -53,6 +53,7 @@ def parse_parameters(parser=None):
     ## Model
     parser.add_argument("--model_type", default=None, type=str)
     parser.add_argument("--pretrained_model_dir", default=None, type=str)
+    parser.add_argument("--finetune_bert", default=None, type=str)
     parser.add_argument("--max_seq_length", default=128, type=int)
     parser.add_argument("--labels", default="0,1", type=str)
     parser.add_argument("--label_filepath", default=None, type=str)

@@ -282,8 +282,6 @@ class TextFieldEmbedder(torch.nn.Module):
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
 
         if args.model_type == "bert":
-            set_trace()
-            finetune = args.finetune
-            embedders["bert"] = MyBert(BertModel.from_pretrained(args.pretrained_model_dir), finetune)
+            embedders["bert"] = MyBert(BertModel.from_pretrained(args.pretrained_model_dir), args.finetune_bert)
 
         return cls(embedders, embedder_to_indexer_map, vocab)
