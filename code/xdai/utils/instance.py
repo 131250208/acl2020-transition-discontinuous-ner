@@ -100,6 +100,7 @@ class TextField(_Field):
     def __init__(self, tokens: List[Token], token_indexers):
         self.tokens = tokens
         self._token_indexers = token_indexers
+        set_trace()
         if "bert" in token_indexers:
             self.bert_tokenizer = token_indexers["bert"]
             del token_indexers["bert"]
