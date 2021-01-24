@@ -59,9 +59,12 @@ class TokenCharactersEmbedder(torch.nn.Module):
 
 
 class MyBert(torch.nn.Module):
-    def __init__(self, bert):
+    def __init__(self, bert, finetune):
         super(MyBert, self).__init__()
         self.bert = bert
+        if not finetune:  # if train without finetuning bert
+            for param in self.bert.parameters():
+                param.requires_grad = False
 
     def forward(self, *args, **kwargs):
         return self.bert(*args, **kwargs)
@@ -279,6 +282,7 @@ class TextFieldEmbedder(torch.nn.Module):
             embedders["elmo_characters"] = TextFieldEmbedder.elmo_embedder(vocab, args)
 
         if args.model_type == "bert":
-            embedders["bert"] = MyBert(BertModel.from_pretrained(args.pretrained_model_dir))
+            finetune = args.finetune
+            embedders["bert"] = MyBert(BertModel.from_pretrained(args.pretrained_model_dir), finetune)
 
         return cls(embedders, embedder_to_indexer_map, vocab)
