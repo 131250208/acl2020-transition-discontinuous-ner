@@ -56,7 +56,6 @@ class Batch(Iterable):
         for field_name, field_tensor_list in field_tensors.items():
             final_fields[field_name] = field_classes[field_name].batch_tensors(field_tensor_list)
 
-        set_trace()
         return final_fields
 
 

@@ -2,7 +2,7 @@ import torch
 from collections import defaultdict
 from typing import Dict, List
 from xdai.utils.token import Token
-
+from IPython.core.debugger import set_trace
 
 '''Reference url: https://github.com/allenai/allennlp/blob/master/allennlp/data/fields/field.py
 Update date: 2019-Nov-5'''
@@ -180,6 +180,7 @@ class TextField(_Field):
             padded_array = indexer.pad_token_sequence(indices_to_pad, desired_num_tokens, padding_lengths)
             indexer_tensors = {key: torch.LongTensor(array) for key, array in padded_array.items()}
             tensors.update(indexer_tensors)
+            set_trace()
         return tensors
 
 
