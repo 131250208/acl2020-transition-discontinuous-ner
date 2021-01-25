@@ -197,7 +197,7 @@ class TextField(_Field):
                     if t in bert_dict:
                         bert_ids.append(bert_dict[t])
                     elif t.lower() in bert_dict:
-                        bert_ids.append(bert_dict[t])
+                        bert_ids.append(bert_dict[t.lower()])
                     else:
                         bert_ids.append(bert_dict["[UNK]"])
 
