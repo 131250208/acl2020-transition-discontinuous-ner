@@ -192,7 +192,15 @@ class TextField(_Field):
                     else:
                         bert_toks.append(w)
                 bert_dict = self.bert_tokenizer.get_vocab()
-                bert_ids = [bert_dict[t] if t in bert_dict else bert_dict["[UNK]"] for t in bert_toks]
+                bert_ids = []
+                for t in bert_toks:
+                    if t in bert_dict:
+                        bert_ids.append(bert_dict[t])
+                    elif t.lower() in bert_dict:
+                        bert_ids.append(bert_dict[t])
+                    else:
+                        bert_ids.append(bert_dict["[UNK]"])
+
                 indices_to_pad = {**indices_to_pad, "bert": bert_ids}
                 desired_num_tokens = {**desired_num_tokens, "bert": desired_num_tokens["tokens"]}
 
